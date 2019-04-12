@@ -6,6 +6,11 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """
+    Process song file file to insert data into the specific data model for analysis
+    :param cur: psycopg2 connection cursor
+    :param filepath: file path of data to wrangle
+    """
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -18,7 +23,7 @@ def process_song_file(cur, filepath):
         cur.execute(song_table_insert, song_data)
     except psycopg2.Error as e:
         print(e)
-    
+
     # insert artist record
     artist_data_df = df[['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']]
     artist_data_values = artist_data_df.values
@@ -29,7 +34,13 @@ def process_song_file(cur, filepath):
     except psycopg2.Error as e:
         print(e)
 
+
 def process_log_file(cur, filepath):
+    """
+    Process log file to insert data into the specific data model for analysis
+    :param cur: psycopg2 connection cursor
+    :param filepath: file path of data to wrangle
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -39,7 +50,7 @@ def process_log_file(cur, filepath):
     # convert timestamp column to datetime
     t = pd.to_datetime(df['ts'], unit='ms')
     df['ts'] = pd.to_datetime(df['ts'], unit='ms')
-    
+
     # insert time data records
     time_data = (t, t.dt.hour, t.dt.day, t.dt.weekofyear, t.dt.month, t.dt.year, t.dt.weekday)
     column_labels = ['timestamp', 'hour', 'day', 'weekofyear', 'month', 'year', 'weekday']
@@ -63,7 +74,7 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-        
+
         # get songId and artistId from song and artist tables
         try:
             cur.execute(song_select, (row.song, row.artist, row.length))
@@ -87,11 +98,18 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    Read all the file in `filepath` and trigger the function `func` on it.
+    :param cur: Database cursor
+    :param conn: psycopg2 connection object
+    :param filepath: file path of the process data
+    :param func: function to trigger on the specified file
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
-        files = glob.glob(os.path.join(root,'*.json'))
-        for f in files :
+        files = glob.glob(os.path.join(root, '*.json'))
+        for f in files:
             all_files.append(os.path.abspath(f))
 
     # get total number of files found
