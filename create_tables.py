@@ -6,7 +6,7 @@ def create_database():
     # connect to default database
     print('='*40)
     print("Create connection")
-    conn = psycopg2.connect("host=127.0.0.1 user=student password=student")
+    conn = psycopg2.connect("host=127.0.0.1 dbname=studentdb user=student password=student")
     conn.set_session(autocommit=True)
     cur = conn.cursor()
     

@@ -10,10 +10,10 @@ time_table_drop = "DROP TABLE IF EXISTS time;"
 
 songplay_table_create = """CREATE TABLE IF NOT EXISTS songplays (
         songplay_id SERIAL PRIMARY KEY,
-        start_time TIMESTAMP REFERENCES time(start_time) ON DELETE CASCADE,
+        start_time TIMESTAMP NOT NULL REFERENCES time(start_time) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
         level VARCHAR,
-        song_id VARCHAR REFERENCES songs(song_id) ON DELETE CASCADE,
+        song_id VARCHAR NOT NULL REFERENCES songs(song_id) ON DELETE CASCADE,
         artist_id VARCHAR REFERENCES artists(artist_id) ON DELETE CASCADE,
         session_id INTEGER,
         location VARCHAR,
@@ -76,7 +76,7 @@ user_table_insert = ("""INSERT INTO users (
         level
     ) VALUES (%s, %s, %s, %s, %s)
     ON CONFLICT (user_id)
-    DO NOTHING;
+    DO UPDATE SET level=EXCLUDED.level;
 """)
 
 song_table_insert = ("""INSERT INTO songs (
